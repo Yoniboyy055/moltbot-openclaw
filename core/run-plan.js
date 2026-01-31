@@ -65,21 +65,17 @@ function sanitizeForHash(obj) {
 
  // Canonical hash: hash plan content with plan_hash blanked
  function computeCanonicalPlanHash(plan) {
-  // sanitize the whole plan for hashing
-  const clone = sanitizeForHash(JSON.parse(JSON.stringify(plan)));
+  // ✅ WHITELIST HASHING: only hash stable payload fields
+  const payload = {
+    plan_id: plan.plan_id,
+    skill_id: plan.skill_id,
+    skill_version: plan.skill_version,
+    inputs: plan.inputs,
+    constraints: plan.constraints,
+    steps: plan.steps
+  };
 
-  // Ensure attestation exists
-  if (!clone.attestation) clone.attestation = {};
-
-  // Remove all attestation metadata except plan_hash
-  for (const k of Object.keys(clone.attestation)) {
-    if (k !== "plan_hash") delete clone.attestation[k];
-  }
-
-  // Blank plan_hash so the hash is not self-referential
-  clone.attestation.plan_hash = "";
-
-  const canonical = stableStringify(clone);
+  const canonical = stableStringify(payload);
   return sha256String(canonical);
 }
 
@@ -138,11 +134,11 @@ function generateCopy(plan) {
   const b = plan.inputs.business_name;
   const r = plan.inputs.city_region;
 
-  return `# Copy (DEMO / DRAFT ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â NOT FOR PUBLIC USE)
+  return `# Copy (DEMO / DRAFT ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â NOT FOR PUBLIC USE)
 
 ## HOME
 
-**Hero:** Built for the jobs that canÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t fail.
+**Hero:** Built for the jobs that canÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t fail.
 
 **Subhead:** Civil excavation and underground utility support for contractors and public-sector work across ${r}.
 
@@ -157,12 +153,12 @@ function generateCopy(plan) {
 - [CERTIFICATION / PREQUALIFICATION]
 
 ## SERVICES (draft)
-- Trenching & Excavation ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â clean execution, controlled site discipline.
-- Underground Utilities Support ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â inspection-ready coordination.
-- Site Servicing ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â staged work to reduce rework and delays.
+- Trenching & Excavation ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â clean execution, controlled site discipline.
+- Underground Utilities Support ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â inspection-ready coordination.
+- Site Servicing ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â staged work to reduce rework and delays.
 
 ## ABOUT (draft)
-${b} operates like a serious partner on serious sites ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â clear communication and predictable process.
+${b} operates like a serious partner on serious sites ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â clear communication and predictable process.
 
 ## CONTACT (draft)
 Form fields only. No real phone/email/address in demo.
@@ -278,7 +274,7 @@ function run(planPath) {
   appendLog(`[${nowIso()}] STEP 07 output=${s7.outPath} hash=${s7.hash}`);
 
   appendLog(`[${nowIso()}] END plan_id=${plan.plan_id} status=success`);
-  console.log("ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Completed:", plan.plan_id);
+  console.log("ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Completed:", plan.plan_id);
   console.log("Artifacts:", path.join("artifacts", plan.plan_id));
   console.log("Audit log:", path.join("logs", "audit.log"));
 }
