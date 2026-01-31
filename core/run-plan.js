@@ -61,7 +61,9 @@ function verifyAttestation(planPath, plan) {
 
   if (actual !== expected) {
     appendLog(`[${nowIso()}] ATTEST fail plan_id=${plan.plan_id} expected=${expected} actual=${actual}`);
-    throw new Error("Plan hash mismatch (attestation failed)");
+    console.error("ATTEST expected=", expected);
+console.error("ATTEST actual  =", actual);
+throw new Error("Plan hash mismatch (attestation failed)");
   }
   return expected;
 }
@@ -107,11 +109,11 @@ function generateCopy(plan) {
   const b = plan.inputs.business_name;
   const r = plan.inputs.city_region;
 
-  return `# Copy (DEMO / DRAFT — NOT FOR PUBLIC USE)
+  return `# Copy (DEMO / DRAFT â€” NOT FOR PUBLIC USE)
 
 ## HOME
 
-**Hero:** Built for the jobs that can’t fail.
+**Hero:** Built for the jobs that canâ€™t fail.
 
 **Subhead:** Civil excavation and underground utility support for contractors and public-sector work across ${r}.
 
@@ -126,12 +128,12 @@ function generateCopy(plan) {
 - [CERTIFICATION / PREQUALIFICATION]
 
 ## SERVICES (draft)
-- Trenching & Excavation — clean execution, controlled site discipline.
-- Underground Utilities Support — inspection-ready coordination.
-- Site Servicing — staged work to reduce rework and delays.
+- Trenching & Excavation â€” clean execution, controlled site discipline.
+- Underground Utilities Support â€” inspection-ready coordination.
+- Site Servicing â€” staged work to reduce rework and delays.
 
 ## ABOUT (draft)
-${b} operates like a serious partner on serious sites — clear communication and predictable process.
+${b} operates like a serious partner on serious sites â€” clear communication and predictable process.
 
 ## CONTACT (draft)
 Form fields only. No real phone/email/address in demo.
@@ -247,7 +249,7 @@ function run(planPath) {
   appendLog(`[${nowIso()}] STEP 07 output=${s7.outPath} hash=${s7.hash}`);
 
   appendLog(`[${nowIso()}] END plan_id=${plan.plan_id} status=success`);
-  console.log("✅ Completed:", plan.plan_id);
+  console.log("âœ… Completed:", plan.plan_id);
   console.log("Artifacts:", path.join("artifacts", plan.plan_id));
   console.log("Audit log:", path.join("logs", "audit.log"));
 }
