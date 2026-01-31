@@ -1,0 +1,81 @@
+﻿{
+  "skill_id": "authority_demo_site_builder",
+  "version": "1.0",
+  "mode": "DRAFT_ONLY",
+  "purpose": "Generate an authority-grade demo website draft (structure + copy + scaffold) with zero external side effects.",
+  "inputs_required": [
+    "business_name",
+    "industry_niche",
+    "city_region",
+    "target_audience",
+    "tone"
+  ],
+  "outputs_required": [
+    "sitemap_md",
+    "copy_md",
+    "tokens_json",
+    "scaffold_tree_txt",
+    "content_map_json",
+    "integrity_report_md",
+    "summary_md"
+  ],
+  "allowed_tools": [
+    "sandbox_fs",
+    "github"
+  ],
+  "risk_floor": "HIGH",
+  "scope_lock": {
+    "includes": [
+      "generate sitemap and section architecture",
+      "generate draft-safe copy (no false claims)",
+      "generate design tokens",
+      "generate scaffold tree",
+      "optional: create github branch + draft PR (no merge)"
+    ],
+    "excludes": [
+      "outreach of any kind",
+      "deployment of any kind",
+      "real phone/email/address",
+      "certifications/awards/performance stats unless provided by human",
+      "use of real logos/trademarks"
+    ]
+  },
+  "side_effect_policy": {
+    "default": "INTERNAL_NO_SIDE_EFFECT",
+    "github_actions": "EXTERNAL_WRITE_REVERSIBLE",
+    "forbidden": [
+      "EXTERNAL_WRITE_IRREVERSIBLE"
+    ]
+  },
+  "steps_max": 12,
+  "step_outline": [
+    "validate_inputs",
+    "generate_sitemap",
+    "generate_copy",
+    "generate_tokens",
+    "generate_scaffold_tree",
+    "map_content",
+    "integrity_checks",
+    "optional_simulate_or_create_branch",
+    "optional_commit",
+    "optional_open_draft_pr",
+    "generate_summary",
+    "halt"
+  ],
+  "stress_test_required": true,
+  "stress_test_dimensions": [
+    "scope",
+    "failure",
+    "reversibility",
+    "dependency",
+    "misuse",
+    "reputation",
+    "human_error"
+  ],
+  "completion_criteria": [
+    "all required outputs exist and are non-empty",
+    "no scope violations",
+    "no external publishing/deploy/outreach",
+    "logs complete (metadata only)"
+  ]
+}
