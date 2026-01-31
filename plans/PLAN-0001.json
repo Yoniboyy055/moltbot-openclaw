@@ -9,7 +9,7 @@
     "industry_niche": "Civil excavation + trenching + utility installs",
     "city_region": "Toronto / GTA, Ontario",
     "target_audience": "Commercial + municipal procurement + GCs",
-    "tone": "Authority-first Ã‚Â· clean Ã‚Â· premium"
+    "tone": "Authority-first Ãƒâ€šÃ‚Â· clean Ãƒâ€šÃ‚Â· premium"
   },
   "risk": {
     "classified": "HIGH",
@@ -69,6 +69,6 @@
   },
   "attestation": {
     "plan_hash_algorithm": "sha256",
-    "plan_hash": "64145f29b85ef635022e1aa50787a73e3b23164d043b7b3cf865b88de5ea01f5"
+    "plan_hash": ""
   }
 }
