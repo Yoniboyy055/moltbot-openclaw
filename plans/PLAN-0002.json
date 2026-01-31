@@ -1,0 +1,116 @@
+{
+  "plan_id": "PLAN-0001",
+  "skill_id": "authority_demo_site_builder",
+  "skill_version": "1.0",
+  "created_at": "2026-01-31T00:00:00-05:00",
+  "intent_summary": "Generate a complete authority-grade demo website draft in DRAFT_ONLY mode with no external side effects.",
+  "inputs": {
+    "business_name": "GTA Civil & Excavation (DEMO)",
+    "industry_niche": "Civil excavation + trenching + utility installs",
+    "city_region": "Toronto / GTA, Ontario",
+    "target_audience": "Commercial + municipal procurement + GCs",
+    "tone": "Authority-first - clean - premium"
+  },
+  "risk": {
+    "classified": "HIGH",
+    "reason": "Business-facing artifacts can affect reputation if misused; risk floor applies."
+  },
+  "scope_lock": {
+    "includes": [
+      "sitemap + section architecture",
+      "draft-safe copy (no false claims)",
+      "design tokens",
+      "scaffold tree",
+      "content map",
+      "integrity report",
+      "summary report"
+    ],
+    "excludes": [
+      "outreach",
+      "deployment",
+      "real contact data",
+      "certifications/awards/performance stats unless provided by human",
+      "logos/trademarks"
+    ]
+  },
+  "allowed_tools": [
+    "sandbox_fs"
+  ],
+  "steps_max": 12,
+  "steps": [
+    {
+      "step_id": "01",
+      "action": "generate_sitemap",
+      "output": "sitemap.md",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 3
+    },
+    {
+      "step_id": "02",
+      "action": "generate_copy",
+      "output": "copy.md",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 10
+    },
+    {
+      "step_id": "03",
+      "action": "generate_tokens",
+      "output": "tokens.json",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 3
+    },
+    {
+      "step_id": "04",
+      "action": "generate_scaffold_tree",
+      "output": "scaffold-tree.txt",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 3
+    },
+    {
+      "step_id": "05",
+      "action": "generate_content_map",
+      "output": "content-map.json",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 5
+    },
+    {
+      "step_id": "06",
+      "action": "integrity_checks",
+      "output": "integrity-report.md",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 2
+    },
+    {
+      "step_id": "07",
+      "action": "generate_summary",
+      "output": "summary.md",
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "timeout_minutes": 3
+    }
+  ],
+  "stress_test": {
+    "required": true,
+    "top_failure_modes": [
+      {
+        "name": "false_proof_claims",
+        "risk": "Copy implies certifications, awards, or metrics that are unverified.",
+        "mitigation": "No numbers/certs/awards; use placeholders like [PROOF ITEM]."
+      },
+      {
+        "name": "brand_misuse",
+        "risk": "Demo could be mistaken for official or use protected branding.",
+        "mitigation": "Mark DEMO; no logos; include DRAFT watermark in outputs."
+      },
+      {
+        "name": "scope_drift_to_outreach",
+        "risk": "Operator or user tries to send/publish.",
+        "mitigation": "Tool matrix blocks send/deploy; scope excludes outreach/deploy."
+      }
+    ],
+    "residual_risk": "acceptable"
+  },
+  "attestation": {
+    "plan_hash_algorithm": "sha256",
+    "plan_hash": "ead4760d8e8ce6227aa67fb792f77809bc2aa5b1559dba9ed0da019d7f670b4a"
+  }
+}

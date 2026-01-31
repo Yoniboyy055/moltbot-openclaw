@@ -4,6 +4,8 @@
   "description": "OpenClaw / Moltbot workspace",
   "main": "index.js",
   "scripts": {
+    "attest": "node core/attest-plan.js",
+    "runplan": "node core/run-plan.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

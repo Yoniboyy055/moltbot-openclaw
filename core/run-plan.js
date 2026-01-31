@@ -55,7 +55,9 @@ function computeCanonicalPlanHash(plan) {
 }
 
 function verifyAttestation(planPath, plan) {
-  assert(plan.attestation && typeof plan.attestation.plan_hash === "string", "Missing plan_hash in attestation");
+  if (!plan.attestation || typeof plan.attestation.plan_hash !== "string" || plan.attestation.plan_hash.trim() === "") {
+    throw new Error("Missing attestation.plan_hash. Run: npm run attest -- plans/PLAN-XXXX.json");
+  }
   const expected = computeCanonicalPlanHash(plan);
   const actual = plan.attestation.plan_hash.toLowerCase();
 
