@@ -25,24 +25,14 @@ function assert(condition, message) {
 
 // Deterministic stringify (stable key ordering, recursive)
 function stableStringify(value) {
-  // Match JSON.stringify semantics for undefined:
-  // - in objects: omit keys with undefined values
-  // - in arrays: convert undefined to null
-  if (value === undefined) return undefined;
   if (value === null || typeof value !== "object") return JSON.stringify(value);
 
   if (Array.isArray(value)) {
-    const items = value.map(v => (v === undefined ? "null" : stableStringify(v)));
-    return "[" + items.join(",") + "]";
+    return "[" + value.map(stableStringify).join(",") + "]";
   }
 
   const keys = Object.keys(value).sort();
-  const props = [];
-  for (const k of keys) {
-    const sv = stableStringify(value[k]);
-    if (sv === undefined) continue; // omit undefined object fields
-    props.push(JSON.stringify(k) + ":" + sv);
-  }
+  const props = keys.map(k => JSON.stringify(k) + ":" + stableStringify(value[k]));
   return "{" + props.join(",") + "}";
 }
 
@@ -55,60 +45,23 @@ function loadPlan(planPath) {
   return JSON.parse(raw);
 }
 
-function sanitizeForHash(obj) {
-  const VOLATILE_KEYS = new Set([
-    "timestamp","created_at","updated_at","generated_at","run_id","execution_id",
-    "nonce","seed","last_run","started_at","ended_at"
-  ]);
-
-  if (obj === null || typeof obj !== "object") return obj;
-
-  if (Array.isArray(obj)) return obj.map(sanitizeForHash);
-
-  const out = {};
-  for (const k of Object.keys(obj)) {
-    if (VOLATILE_KEYS.has(k)) continue;
-    out[k] = sanitizeForHash(obj[k]);
-  }
-  return out;
-}
-
- // Canonical hash: hash plan content with plan_hash blanked
- function computeCanonicalPlanHash(plan) {
-  const payload = {
-    plan_id: plan.plan_id,
-    skill_id: plan.skill_id,
-    skill_version: plan.skill_version,
-    inputs: plan.inputs,
-    constraints: plan.constraints,
-    steps: plan.steps
-  };
-
-  const canonical = stableStringify(payload);
-
-  // DEBUG capture
-  global.__lastHashDebug = { payload, canonical };
-
+// Canonical hash: hash plan content with plan_hash blanked
+function computeCanonicalPlanHash(plan) {
+  const clone = JSON.parse(JSON.stringify(plan));
+  if (!clone.attestation) clone.attestation = {};
+  clone.attestation.plan_hash = "";
+  const canonical = stableStringify(clone);
   return sha256String(canonical);
 }
 
 function verifyAttestation(planPath, plan) {
   assert(plan.attestation && typeof plan.attestation.plan_hash === "string", "Missing plan_hash in attestation");
   const expected = computeCanonicalPlanHash(plan);
-
-// DEBUG: show what we are hashing (computed inside computeCanonicalPlanHash)
-if (global.__lastHashDebug) {
-  console.error("HASH DEBUG payload =", JSON.stringify(global.__lastHashDebug.payload));
-  console.error("HASH DEBUG canonical =", global.__lastHashDebug.canonical);
-  console.error("HASH DEBUG canonical_len =", global.__lastHashDebug.canonical.length);
-}
   const actual = plan.attestation.plan_hash.toLowerCase();
 
   if (actual !== expected) {
     appendLog(`[${nowIso()}] ATTEST fail plan_id=${plan.plan_id} expected=${expected} actual=${actual}`);
-    console.error("ATTEST expected=", expected);
-console.error("ATTEST actual  =", actual);
-throw new Error("Plan hash mismatch (attestation failed)");
+    throw new Error("Plan hash mismatch (attestation failed)");
   }
   return expected;
 }
@@ -154,11 +107,11 @@ function generateCopy(plan) {
   const b = plan.inputs.business_name;
   const r = plan.inputs.city_region;
 
-  return `# Copy (DEMO / DRAFT ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â NOT FOR PUBLIC USE)
+  return `# Copy (DEMO / DRAFT — NOT FOR PUBLIC USE)
 
 ## HOME
 
-**Hero:** Built for the jobs that canÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢t fail.
+**Hero:** Built for the jobs that can’t fail.
 
 **Subhead:** Civil excavation and underground utility support for contractors and public-sector work across ${r}.
 
@@ -173,12 +126,12 @@ function generateCopy(plan) {
 - [CERTIFICATION / PREQUALIFICATION]
 
 ## SERVICES (draft)
-- Trenching & Excavation ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â clean execution, controlled site discipline.
-- Underground Utilities Support ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â inspection-ready coordination.
-- Site Servicing ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â staged work to reduce rework and delays.
+- Trenching & Excavation — clean execution, controlled site discipline.
+- Underground Utilities Support — inspection-ready coordination.
+- Site Servicing — staged work to reduce rework and delays.
 
 ## ABOUT (draft)
-${b} operates like a serious partner on serious sites ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â clear communication and predictable process.
+${b} operates like a serious partner on serious sites — clear communication and predictable process.
 
 ## CONTACT (draft)
 Form fields only. No real phone/email/address in demo.
@@ -294,7 +247,7 @@ function run(planPath) {
   appendLog(`[${nowIso()}] STEP 07 output=${s7.outPath} hash=${s7.hash}`);
 
   appendLog(`[${nowIso()}] END plan_id=${plan.plan_id} status=success`);
-  console.log("ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ Completed:", plan.plan_id);
+  console.log("✅ Completed:", plan.plan_id);
   console.log("Artifacts:", path.join("artifacts", plan.plan_id));
   console.log("Audit log:", path.join("logs", "audit.log"));
 }
