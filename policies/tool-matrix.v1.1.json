@@ -1,0 +1,84 @@
+﻿{
+  "version": "1.1",
+  "default_state": "NON_EXISTENT",
+  "global_rules": {
+    "least_privilege": true,
+    "verb_level_control": true,
+    "technical_enforcement_required": true
+  },
+  "tools": {
+    "sandbox_fs": {
+      "allowed_verbs": ["read", "write", "rename"],
+      "forbidden_verbs": ["execute", "delete_outside_sandbox"],
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "approval_required": false
+    },
+    "github": {
+      "allowed_verbs": ["read", "create_branch", "commit", "open_pr"],
+      "forbidden_verbs": ["merge", "close_pr", "delete_branch", "force_push"],
+      "side_effect": "EXTERNAL_WRITE_REVERSIBLE",
+      "approval_required": {
+        "merge": true,
+        "close_pr": true
+      }
+    },
+    "package_manager": {
+      "allowed_verbs": ["install_locked"],
+      "forbidden_verbs": ["global_install", "postinstall_scripts"],
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "approval_required": false
+    },
+    "deployment": {
+      "allowed_verbs": ["deploy_preview"],
+      "forbidden_verbs": ["deploy_prod", "modify_env_vars"],
+      "side_effect": "EXTERNAL_WRITE_REVERSIBLE",
+      "approval_required": {
+        "deploy_prod": true
+      }
+    },
+    "browser_automation": {
+      "allowed_verbs": ["navigate", "screenshot", "extract_text"],
+      "forbidden_verbs": ["submit_forms", "click_purchase", "auth_login"],
+      "side_effect": "EXTERNAL_WRITE_REVERSIBLE",
+      "approval_required": {
+        "over_25_pages": true
+      }
+    },
+    "messaging": {
+      "allowed_verbs": ["draft"],
+      "forbidden_verbs": ["send", "schedule", "auto_followup"],
+      "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+      "approval_required": {
+        "send": true
+      }
+    },
+    "media": {
+      "tts": {
+        "allowed_verbs": ["generate_audio"],
+        "forbidden_verbs": ["publish", "upload"],
+        "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+        "approval_required": false
+      },
+      "video": {
+        "allowed_verbs": ["render"],
+        "forbidden_verbs": ["publish", "upload"],
+        "side_effect": "INTERNAL_NO_SIDE_EFFECT",
+        "approval_required": false
+      }
+    },
+    "data_tables": {
+      "allowed_verbs": ["read", "append_row"],
+      "forbidden_verbs": ["overwrite", "delete", "bulk_import"],
+      "side_effect": "EXTERNAL_WRITE_REVERSIBLE",
+      "approval_required": false
+    }
+  },
+  "hard_blocked_classes": [
+    "payments",
+    "e_signatures",
+    "ad_platforms",
+    "social_posting",
+    "auto_dialers",
+    "irreversible_deletion"
+  ]
+}
