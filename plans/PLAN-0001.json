@@ -1,4 +1,4 @@
-﻿{
+{
   "plan_id": "PLAN-0001",
   "skill_id": "authority_demo_site_builder",
   "skill_version": "1.0",
@@ -9,7 +9,7 @@
     "industry_niche": "Civil excavation + trenching + utility installs",
     "city_region": "Toronto / GTA, Ontario",
     "target_audience": "Commercial + municipal procurement + GCs",
-    "tone": "Authority-first Â· clean Â· premium"
+    "tone": "Authority-first Ã‚Â· clean Ã‚Â· premium"
   },
   "risk": {
     "classified": "HIGH",
@@ -69,6 +69,6 @@
   },
   "attestation": {
     "plan_hash_algorithm": "sha256",
-    "plan_hash": "933f2252540c39bb265c0cd60b0315f289e36a612e9b9b33c8d6fd89bca6b878"
+    "plan_hash": "64145f29b85ef635022e1aa50787a73e3b23164d043b7b3cf865b88de5ea01f5"
   }
 }
