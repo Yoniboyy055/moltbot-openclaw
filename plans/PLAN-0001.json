@@ -111,6 +111,6 @@
                     },
     "attestation":  {
                         "plan_hash_algorithm":  "sha256",
-                        "plan_hash":  "23e7bb5f53f936756f340094a5b4605cd03227c6af8b0dfc5536345c6a5f4902"
+                        "plan_hash": "344419b60be46e4db3ab509b129ddeb1f0b0b164cea637ea2ed76a468c7d10d2"
                     }
 }
