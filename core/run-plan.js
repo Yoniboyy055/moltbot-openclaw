@@ -48,8 +48,19 @@ function loadPlan(planPath) {
 // Canonical hash: hash plan content with plan_hash blanked
 function computeCanonicalPlanHash(plan) {
   const clone = JSON.parse(JSON.stringify(plan));
+
+  // Ensure attestation exists
   if (!clone.attestation) clone.attestation = {};
+
+  // Remove all volatile attestation metadata from hash input
+  // Only plan_hash is the "hole" that gets blanked
+  for (const k of Object.keys(clone.attestation)) {
+    if (k !== "plan_hash") delete clone.attestation[k];
+  }
+
+  // Blank plan_hash so the hash is not self-referential
   clone.attestation.plan_hash = "";
+
   const canonical = stableStringify(clone);
   return sha256String(canonical);
 }
@@ -109,11 +120,11 @@ function generateCopy(plan) {
   const b = plan.inputs.business_name;
   const r = plan.inputs.city_region;
 
-  return `# Copy (DEMO / DRAFT â€” NOT FOR PUBLIC USE)
+  return `# Copy (DEMO / DRAFT Ã¢â‚¬â€ NOT FOR PUBLIC USE)
 
 ## HOME
 
-**Hero:** Built for the jobs that canâ€™t fail.
+**Hero:** Built for the jobs that canÃ¢â‚¬â„¢t fail.
 
 **Subhead:** Civil excavation and underground utility support for contractors and public-sector work across ${r}.
 
@@ -128,12 +139,12 @@ function generateCopy(plan) {
 - [CERTIFICATION / PREQUALIFICATION]
 
 ## SERVICES (draft)
-- Trenching & Excavation â€” clean execution, controlled site discipline.
-- Underground Utilities Support â€” inspection-ready coordination.
-- Site Servicing â€” staged work to reduce rework and delays.
+- Trenching & Excavation Ã¢â‚¬â€ clean execution, controlled site discipline.
+- Underground Utilities Support Ã¢â‚¬â€ inspection-ready coordination.
+- Site Servicing Ã¢â‚¬â€ staged work to reduce rework and delays.
 
 ## ABOUT (draft)
-${b} operates like a serious partner on serious sites â€” clear communication and predictable process.
+${b} operates like a serious partner on serious sites Ã¢â‚¬â€ clear communication and predictable process.
 
 ## CONTACT (draft)
 Form fields only. No real phone/email/address in demo.
@@ -249,7 +260,7 @@ function run(planPath) {
   appendLog(`[${nowIso()}] STEP 07 output=${s7.outPath} hash=${s7.hash}`);
 
   appendLog(`[${nowIso()}] END plan_id=${plan.plan_id} status=success`);
-  console.log("âœ… Completed:", plan.plan_id);
+  console.log("Ã¢Å“â€¦ Completed:", plan.plan_id);
   console.log("Artifacts:", path.join("artifacts", plan.plan_id));
   console.log("Audit log:", path.join("logs", "audit.log"));
 }
