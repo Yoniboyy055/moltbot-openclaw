@@ -45,15 +45,33 @@ function loadPlan(planPath) {
   return JSON.parse(raw);
 }
 
-// Canonical hash: hash plan content with plan_hash blanked
-function computeCanonicalPlanHash(plan) {
-  const clone = JSON.parse(JSON.stringify(plan));
+function sanitizeForHash(obj) {
+  const VOLATILE_KEYS = new Set([
+    "timestamp","created_at","updated_at","generated_at","run_id","execution_id",
+    "nonce","seed","last_run","started_at","ended_at"
+  ]);
+
+  if (obj === null || typeof obj !== "object") return obj;
+
+  if (Array.isArray(obj)) return obj.map(sanitizeForHash);
+
+  const out = {};
+  for (const k of Object.keys(obj)) {
+    if (VOLATILE_KEYS.has(k)) continue;
+    out[k] = sanitizeForHash(obj[k]);
+  }
+  return out;
+}
+
+ // Canonical hash: hash plan content with plan_hash blanked
+ function computeCanonicalPlanHash(plan) {
+  // sanitize the whole plan for hashing
+  const clone = sanitizeForHash(JSON.parse(JSON.stringify(plan)));
 
   // Ensure attestation exists
   if (!clone.attestation) clone.attestation = {};
 
-  // Remove all volatile attestation metadata from hash input
-  // Only plan_hash is the "hole" that gets blanked
+  // Remove all attestation metadata except plan_hash
   for (const k of Object.keys(clone.attestation)) {
     if (k !== "plan_hash") delete clone.attestation[k];
   }
@@ -120,11 +138,11 @@ function generateCopy(plan) {
   const b = plan.inputs.business_name;
   const r = plan.inputs.city_region;
 
-  return `# Copy (DEMO / DRAFT Ã¢â‚¬â€ NOT FOR PUBLIC USE)
+  return `# Copy (DEMO / DRAFT ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â NOT FOR PUBLIC USE)
 
 ## HOME
 
-**Hero:** Built for the jobs that canÃ¢â‚¬â„¢t fail.
+**Hero:** Built for the jobs that canÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t fail.
 
 **Subhead:** Civil excavation and underground utility support for contractors and public-sector work across ${r}.
 
@@ -139,12 +157,12 @@ function generateCopy(plan) {
 - [CERTIFICATION / PREQUALIFICATION]
 
 ## SERVICES (draft)
-- Trenching & Excavation Ã¢â‚¬â€ clean execution, controlled site discipline.
-- Underground Utilities Support Ã¢â‚¬â€ inspection-ready coordination.
-- Site Servicing Ã¢â‚¬â€ staged work to reduce rework and delays.
+- Trenching & Excavation ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â clean execution, controlled site discipline.
+- Underground Utilities Support ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â inspection-ready coordination.
+- Site Servicing ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â staged work to reduce rework and delays.
 
 ## ABOUT (draft)
-${b} operates like a serious partner on serious sites Ã¢â‚¬â€ clear communication and predictable process.
+${b} operates like a serious partner on serious sites ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â clear communication and predictable process.
 
 ## CONTACT (draft)
 Form fields only. No real phone/email/address in demo.
@@ -260,7 +278,7 @@ function run(planPath) {
   appendLog(`[${nowIso()}] STEP 07 output=${s7.outPath} hash=${s7.hash}`);
 
   appendLog(`[${nowIso()}] END plan_id=${plan.plan_id} status=success`);
-  console.log("Ã¢Å“â€¦ Completed:", plan.plan_id);
+  console.log("ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Completed:", plan.plan_id);
   console.log("Artifacts:", path.join("artifacts", plan.plan_id));
   console.log("Audit log:", path.join("logs", "audit.log"));
 }
